@@ -5,9 +5,9 @@
 # http://mattdyson.org/blog/2014/07/text-to-speech-on-a-raspberry-pi-using-google-translate/
 # Some inspiration taken from http://danfountain.com/2013/03/raspberry-pi-text-to-speech/
 
-# Version 1.1 (01/08/15)
+# Version 1.2 (08/08/15)
 # Changes:
-#  - Update to use new arguments required, now that the translate_tts URL is subject to CAPTCHA verification
+#  - Use urllib to properly encode variables (thanks to Paul for the fix!)
 
 # Process some text input from our arguments, and then pass them to the Google translate engine
 # for Text-To-Speech translation in nicely formatted chunks (the API cannot handle more than 100
@@ -19,6 +19,7 @@
 from subprocess import call
 import sys
 import re
+import urllib
 
 MAX_LEN = 100 # Maximum length of a segment to send to Google for TTS
 LANGUAGE = "en" # Language to use with TTS - this won't do any translation, just the voice it's spoken with
@@ -62,5 +63,14 @@ while len(parts)>0: # While we have parts to process
       processedParts.append(cut.strip())
 
 for part in processedParts:
+   # Encode our query
+   query = urllib.encode({
+      'q' : part,
+      'client' : 't',
+      'tl' : LANGUAGE,
+      'ie' : ENCODING,
+      'total' : '1',
+      'idx' : '0'
+   })
    # Use mpg123 to play the resultant MP3 file from Google TTS
-   call(["mpg123","-q","http://translate.google.com/translate_tts?tl=%s&q=%s&ie=%s&total=1&idx=0&client=t" % (LANGUAGE,part,ENCODING)])
+   call(["mpg123","-q","http://translate.google.com/translate_tts?%s" % (query)])
