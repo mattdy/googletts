@@ -64,7 +64,7 @@ while len(parts)>0: # While we have parts to process
 
 for part in processedParts:
    # Encode our query
-   query = urllib.encode({
+   query = urllib.urlencode({
       'q' : part,
       'client' : 't',
       'tl' : LANGUAGE,
